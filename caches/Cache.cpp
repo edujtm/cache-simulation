@@ -7,7 +7,8 @@
 Cache::Cache(int cchsize, int blksize, int associativity, ReplacementPolicy & rpolicy, WritePolicy & wpolicy) {
 
     replace = &rpolicy;
-    nsets = 128;
+    // TODO verificar se o calculo abaixo esta funcionando (se ha algum erro de conversao de tipos)
+    nsets = cchsize / blksize * associativity;
     writePolicy = &wpolicy;
 
     assoc = associativity;
