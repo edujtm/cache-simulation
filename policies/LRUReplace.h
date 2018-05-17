@@ -12,11 +12,11 @@
 class LRUReplace : public ReplacementPolicy {
 
     // This value may overflow, but it'll not for the purposes of the simulation
-    int now;
+    uint32_t now;
 public:
-    LRUReplace(): now{0} {}
-    int getBlockIndex(std::vector<bool> & valid, std::vector<int> & counters) override;
-    void update(std::vector<int> & counters, int idx) override;
+    LRUReplace();
+    size_t getBlockIndex(std::vector<bool> & valid, std::vector<uint32_t> & counters) override;
+    void update(std::vector<uint32_t> & counters, size_t idx) override;
 };
 
 

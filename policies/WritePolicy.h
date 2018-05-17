@@ -5,18 +5,18 @@
 #ifndef CACHESIMULATION_WRITEPOLICY_H
 #define CACHESIMULATION_WRITEPOLICY_H
 
-#include <vector>
+#include<vector>
 #include <utility>
 #include <cstdio>
+#include "../caches/Cache.h"
+
+class CacheLine;
 
 class WritePolicy {
-//protected:
-//    Memory & memory;
 public:
-    //virtual explicit WritePolicy(Memory & memory);
-    virtual bool write(std::vector<std::pair<int, std::vector<short> > > & set, std::vector<bool> & valid, std::vector<bool> & dirty, int offset, int tag, short data) = 0;
-    virtual std::vector<short> recoverFromMemory(int address) = 0;
-    virtual void writeToMemory(std::vector<std::pair<int, std::vector<short> > > & data, int idx) = 0;
+    virtual bool write(std::vector<CacheLine> & set, std::vector<bool> & valid, std::vector<bool> & dirty, size_t offset, uint32_t tag, int8_t data) = 0;
+    virtual std::vector<int8_t> recoverFromMemory(size_t blockidx) = 0;
+    virtual void writeToMemory(const CacheLine & block, uint32_t blockidx) = 0;
 };
 
 #endif //CACHESIMULATION_WRITEPOLICY_H
