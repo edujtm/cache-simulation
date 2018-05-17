@@ -9,22 +9,16 @@
 #include <iomanip>
 
 struct HitMissCounter {
-    int readHits;
-    int readTotal;
-    int readMisses;
+    uint32_t readHits;
+    uint32_t readTotal;
+    uint32_t readMisses;
 
-    int writeHits;
-    int writeTotal;
-    int writeMisses;
+    uint32_t writeHits;
+    uint32_t writeTotal;
+    uint32_t writeMisses;
 
     HitMissCounter() {
-        readHits = 0;
-        readTotal = 0;
-        readMisses = 0;
-
-        writeHits = 0;
-        writeTotal = 0;
-        writeMisses = 0;
+        restart();
     }
 
     double getHitRate() const {
@@ -33,6 +27,16 @@ struct HitMissCounter {
 
     double getMissRate() const {
         return (double) (readMisses + writeMisses) / (writeTotal + readTotal > 0 ? writeTotal + readTotal : 1);
+    }
+
+    void restart() {
+        readHits = 0;
+        readTotal = 0;
+        readMisses = 0;
+
+        writeHits = 0;
+        writeTotal = 0;
+        writeMisses = 0;
     }
 
     friend std::ostream & operator<<(std::ostream & stdout, const HitMissCounter & value) {

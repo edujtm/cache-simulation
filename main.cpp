@@ -1,11 +1,3 @@
-#include <iostream>
-
-#define CACHESIZE 1024
-#define BLOCKSIZE 8
-#define DIRECT 1
-#define SETASSOC 8
-#define FULLASSOC 64
-
 #include "caches/Cache.h"
 #include "policies/LRUReplace.h"
 #include "policies/WriteBackPolicy.h"
@@ -13,17 +5,41 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <iostream>
+#include <random>
+#include <functional>
 
+#define MEMLINE 100
+#define MEMCOL 1000
+#define CACHESIZE 1024u
+#define BLOCKSIZE 16u
+#define DIRECT 1u
+#define SETASSOC 8
+#define FULLASSOC 64
 
-void runCache(int size, int blksize, int assoc) {
+void runCache(uint32_t size, uint32_t blksize, uint32_t assoc) {
+    // Gerador de numeros aleatorios
+    std::default_random_engine generator;
+    std::uniform_int_distribution<int8_t> distribution(-128, 127);
+    auto memvalue = std::bind(distribution, generator);
+
+    std::vector<std::vector<int8_t > > memory (MEMLINE, std::vector<int8_t >(MEMCOL, 0));
+    for (size_t i = 0; i < MEMLINE; ++i) {
+        for (size_t j = 0; j < MEMCOL; ++j) {
+            memory[i][j] = memvalue();
+        }
+    }
+
+    // LRUReplace indica qual o bloco vai ser substituido na cache
     LRUReplace replace = LRUReplace();
-    WriteBackPolicy WB = WriteBackPolicy();
+
+    // WriteBackPolicy e uma especie de protocolo de comunicaçao entre a memoria e a cache
+    WriteBackPolicy WB = WriteBackPolicy(memory);
     Cache cache = Cache(size, blksize, assoc, replace, WB);
 
     std::cout << "Iterando pelas colunas" << std::endl;
-    for (int row = 0; row < 100; row += 2) {
-        for (int col = 0; col < 1000; col += 2) {
-            int address = col + row * 100;
+    for (uint32_t row = 0; row < 100; row += 1) {
+        for (uint32_t col = 0; col < 1000; col += 1) {
+            uint32_t address = col + row * 100;
             cache.read(address);
         }
     }
@@ -31,18 +47,25 @@ void runCache(int size, int blksize, int assoc) {
     std::cout << cache.aval;
 
     std::cout << "Iterando pelas linhas" << std::endl;
-    for (int col = 0; col < 1000; col += 2) {
-        for (int row = 0; row < 100; row += 2) {
-            int address = col + row * 100;
+    for (uint32_t col = 0; col < 1000; col += 1) {
+        for (uint32_t row = 0; row < 100; row += 1) {
+            uint32_t address = col + row * 100;
             cache.read(address);
         }
     }
-    // TODO reiniciar aval
     std::cout << cache.aval;
 }
 
 int main() {
 
+    std::cout << "Inicializando execuçao das caches." << std::endl;
+    std::cout << "Tamanho dos tipos de variaveis utilizados: " << std::endl;
+    std::cout << "Tamanho de uint32_t em bytes: " << sizeof(uint32_t) << " bytes." << std::endl;
+    std::cout << "Tamanho de int8_t em bytes: "<< sizeof(int8_t) << " bytes." << std::endl;
+    std::cout << "Tamanho de size_t em bytes: " << sizeof(size_t) << " bytes" << std::endl << std::endl;
+
+    runCache(CACHESIZE, BLOCKSIZE, DIRECT);
+    /*
     pid_t directpid = fork();
 
     if (directpid < 0) {
@@ -90,5 +113,6 @@ int main() {
         // processo filho para a cache direta
         runCache(CACHESIZE, BLOCKSIZE, DIRECT);
     }
+     */
     return 0;
 }

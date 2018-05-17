@@ -6,11 +6,13 @@
 #define CACHESIMULATION_REPLACEMENTPOLICY_H
 
 #include <vector>
+#include <cstdint> // uint32_t
+#include <cstdlib> // size_t
 
 class ReplacementPolicy {
 public:
-    virtual int getBlockIndex(std::vector<bool> & valid, std::vector<int> & counters) = 0;
-    virtual void update(std::vector<int> & counters, int idx) = 0;
+    virtual size_t getBlockIndex(std::vector<bool> & valid, std::vector<uint32_t > & counters) = 0;
+    virtual void update(std::vector<uint32_t> & counters, size_t idx) = 0;
 };
 
 
