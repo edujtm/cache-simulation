@@ -4,16 +4,20 @@
 
 #include "LRUReplace.h"
 
-int LRUReplace::getBlockIndex(std::vector<bool> &valid, std::vector<int> & counters) {
-    for (int i = 0; i < valid.size(); ++i) {
+LRUReplace::LRUReplace() {
+    now = 0u;
+}
+
+size_t LRUReplace::getBlockIndex(std::vector<bool> &valid, std::vector<uint32_t> & counters) {
+    for (size_t i = 0; i < valid.size(); ++i) {
         if (!valid[i]) {
             update(counters, i);
             return i;
         }
     }
 
-    int replace = 0;
-    for (int i = 1; i < counters.size(); ++i) {
+    size_t replace = 0;
+    for (size_t i = 1; i < counters.size(); ++i) {
         if (counters[i] < counters[i-1]) {
             replace = i;
         }
@@ -22,6 +26,6 @@ int LRUReplace::getBlockIndex(std::vector<bool> &valid, std::vector<int> & count
     return replace;
 }
 
-void LRUReplace::update(std::vector<int> & counters, int idx) {
+void LRUReplace::update(std::vector<uint32_t > & counters, size_t idx) {
     counters[idx] = now++;
 }

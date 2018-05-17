@@ -9,35 +9,51 @@
 #include "../helper/HitMissCounter.h"
 #include "../policies/WritePolicy.h"
 #include "../policies/LRUReplace.h"
+#include <cmath>
 #include <vector>
 #include <bitset>
 #include <utility>
 
-#define MAXBIT 1024
+#define BLOCKSIZE 16u
+
+struct CacheLine {
+    uint32_t tag;
+    std::vector<int8_t> data;
+
+    CacheLine() {
+        tag = 0;
+        data = std::vector<int8_t>(BLOCKSIZE, 0);
+    }
+};
+
+class WritePolicy;
+class ReplacementPolicy;
 
 class Cache {
-    int nsets;
-    int cachesize;
-    int assoc;
-    int blocksize;
-    int offsetBitCount;
+    uint32_t nsets;
+    uint32_t cachesize;
+    uint32_t assoc;
+    uint32_t blocksize;
+    uint32_t offsetBitCount;
+    uint32_t indexBitCount;
 
     ReplacementPolicy * replace;
     WritePolicy * writePolicy;
 
     // Vetor de sets de blocos de memoria cache
-    std::vector<std::vector<std::pair<int, std::vector<short> > > > data;
+    std::vector<std::vector<CacheLine> > data;
 
     // para cada set ha um vetor de bits de validade e de alteraçao
     std::vector<std::vector<bool> > valid;
     std::vector<std::vector<bool> > dirty;
-    std::vector<std::vector<int> > counters;
+    std::vector<std::vector<uint32_t > > counters;
 
+    size_t handleMiss(uint32_t index, uint32_t newaddress);
 public:
     HitMissCounter aval;
-    Cache(int cachesize, int blocksize, int assoc, ReplacementPolicy & rpolicy, WritePolicy & wpolicy);
-    short read(int address);
-    void write(int address, short value);
+    Cache(uint32_t cachesize, uint32_t blocksize, uint32_t assoc, ReplacementPolicy & rpolicy, WritePolicy & wpolicy);
+    short read(uint32_t address);
+    void write(uint32_t address, int8_t value);
 };
 
 
