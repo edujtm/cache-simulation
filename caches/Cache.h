@@ -52,7 +52,7 @@ class Cache {
 public:
     HitMissCounter aval;
     Cache(uint32_t cachesize, uint32_t blocksize, uint32_t assoc, ReplacementPolicy & rpolicy, WritePolicy & wpolicy);
-    short read(uint32_t address);
+    int8_t read(uint32_t address);
     void write(uint32_t address, int8_t value);
 };
 
