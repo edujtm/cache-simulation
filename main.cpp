@@ -48,6 +48,8 @@ void runCache(uint32_t size, uint32_t blksize, uint32_t assoc, std::fstream & fi
 
     file << cache.aval << std::endl;
 
+    cache.aval.restart();
+
     file << "Iterando pelas linhas" << std::endl;
     for (uint32_t col = 0; col < MEMCOL; col += 1) {
         for (uint32_t row = 0; row < MEMLINE; row += 1) {

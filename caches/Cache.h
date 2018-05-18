@@ -11,7 +11,6 @@
 #include "../policies/LRUReplace.h"
 #include <cmath>
 #include <vector>
-#include <bitset>
 #include <utility>
 
 #define BLOCKSIZE 16u
