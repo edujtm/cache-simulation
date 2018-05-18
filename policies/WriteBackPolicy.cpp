@@ -24,15 +24,22 @@ std::vector<int8_t> WriteBackPolicy::recoverFromMemory(size_t address) {
     // Encontra a posicao na matriz de memoria onde começa o bloco correspondente
     auto line = address / memory[0].size();
     auto col = address % memory[0].size();
+    auto startblock = col - (col % BLOCKSIZE);
 
     std::vector<int8_t> result;
     for (size_t i = 0; i < BLOCKSIZE; ++i) {
-        auto posc = (col+i) % memory.size();
+        auto posc = (startblock + i) % memory[0].size();
         auto posl = line;
 
         // Funciona apenas se o bloco de dados for menor que a quantidade de colunas na memoria
-        if (col + i >= memory.size()) posl++;
-        result.push_back(memory[posl][posc]);
+        if (startblock + i >= memory[0].size()) posl = line + 1;
+
+        // Como a memoria nao e multipla do numero de blocos, evita que sejam escritos valores fora da memoria
+        if (posl < 100) {
+            result.push_back(memory[posl][posc]);
+        } else {
+            result.push_back(0);
+        }
     }
 
     return result;
@@ -41,13 +48,16 @@ std::vector<int8_t> WriteBackPolicy::recoverFromMemory(size_t address) {
 void WriteBackPolicy::writeToMemory(const CacheLine & block, uint32_t address) {
     auto line = address / memory[0].size();
     auto col = address % memory[0].size();
+    auto startblock = col - (col % BLOCKSIZE);
 
     for (size_t i = 0; i < BLOCKSIZE; ++i) {
-        auto posc = (col + i) % memory.size();
+        auto posc = (startblock + i) % memory[0].size();
         auto posl = line;
 
-        if (col + i >= memory.size()) posl++;
-        memory[posl][posc] = block.data[i];
+        if (startblock + i >= memory[0].size()) posl = line + 1;
+
+        // Como a memoria nao e multipla do numero de blocos, evita que sejam escritos valores fora da memoria
+        if (posl < 100) memory[posl][posc] = block.data[i];
     }
 
 }

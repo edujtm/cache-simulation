@@ -27,7 +27,7 @@ Cache::Cache(uint32_t cchsize, uint32_t blksize, uint32_t associativity, Replace
     counters = std::vector<std::vector<uint32_t >>(nsets, std::vector<uint32_t >(assoc, 0));
 }
 
-short Cache::read(uint32_t address) {
+int8_t Cache::read(uint32_t address) {
     // Obtendo valores da cache atraves do endereço
     auto offset = address % blocksize;
     auto index = (address >> offsetBitCount) % nsets;
@@ -36,7 +36,7 @@ short Cache::read(uint32_t address) {
     aval.readTotal++;
 
     // Valor de retorno da leitura
-    short value = 0;
+    int8_t value = 0;
 
     // Busca pela tag nos valores do conjunto associativo
     bool hit = false;
@@ -50,6 +50,7 @@ short Cache::read(uint32_t address) {
         }
     }
 
+    // Se nao encontrou a tag, gerencia o movimento de dados e busca o dado novamente
     if (!hit) {
         aval.readMisses++;
         size_t replacedidx = handleMiss(index, address);
@@ -66,7 +67,6 @@ void Cache::write(uint32_t address, int8_t value) {
 
     aval.writeTotal++;
 
-
     bool ableToWrite = writePolicy->write(data[index], valid[index], dirty[index], offset, tag, value);
 
     if (ableToWrite) aval.writeHits++;
@@ -77,24 +77,6 @@ void Cache::write(uint32_t address, int8_t value) {
         ableToWrite = writePolicy->write(data[index], valid[index], dirty[index], offset, tag, value);
     }
 
-
-    /*
-    bool hit = false;
-    for (size_t i = 0; i < assoc; ++i) {
-        if (data[index][i].tag == tag) {
-            aval.writeHits++;
-            replace->update(counters[index], i);
-            hit = true;
-        }
-    }
-
-    if (!hit) {
-        size_t blockidx = replace->getBlockIndex(valid[index], counters[index]);
-        aval.writeMisses++;
-        data[index][blockidx].tag = tag;
-        valid[index][blockidx] = true;
-    }
-    */
 }
 
 size_t Cache::handleMiss(uint32_t index, uint32_t newaddress) {
@@ -107,8 +89,6 @@ size_t Cache::handleMiss(uint32_t index, uint32_t newaddress) {
     uint32_t oldaddress = (data[index][blockidx].tag << indexBitCount) | (index << offsetBitCount);
 
     if (valid[index][blockidx]) writePolicy->writeToMemory(data[index][blockidx], oldaddress);
-
-    valid[index][blockidx] = false;
 
     auto block = writePolicy->recoverFromMemory(newaddress);
 

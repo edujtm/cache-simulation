@@ -1,0 +1,11 @@
+Resultado da cache com mapeamento em conjunto:
+Iterando pelas colunas
+Resultados: 
+Hit rate (hits/total): 0.938
+Miss rate (misses/total): 0.0625
+
+Iterando pelas linhas
+Resultados: 
+Hit rate (hits/total): 0.469
+Miss rate (misses/total): 0.531
+
